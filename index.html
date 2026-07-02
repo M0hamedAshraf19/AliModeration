@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome!</title>
+    <meta charset='UTF-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <link rel='stylesheet' href='Styles/Mobile.css' media='(max-width: 767px)'>
+    <link rel='stylesheet' href='Styles/Tablet.css' media='(min-width: 768px) and (max-width: 1023px)'>
+    <link rel='stylesheet' href='Styles/Desktop.css' media='(min-width: 1024px)'>
+    <link type='image/x-icon' rel='icon' href='Favicon.ico'>
+    <script src='https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js'></script>
+    <script src='https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js'></script>
+    <script src='https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js'></script>
+    <link rel='manifest' href='Manifest.json'>
+    <link rel='apple-touch-icon' href='Favicon.png'>
+</head>
+<body>
+
+    <div id='login' style='display:none;'>
+        <input type='email' id='email' placeholder='email' size='30'>
+        <input type='password' id='password' placeholder='password' size='30'>
+        <button id='loginbtn'>Log in</button>
+        <p id='loginerr' style='color:red;'></p>
+    </div>
+
+    <div id='app' style='display:none;'>
+        <h1>You are in!</h1>
+        <div id='availability' style='display:none;'>
+            <p></p>
+            <button id='release'></button>
+        </div>
+        <div id='punish' style='display:none;'>
+            b
+        </div>
+        <button id='logoutbtn'>Log out</button>
+    </div>
+
+    <script src='Script.js'></script>
+</body>
+</html>

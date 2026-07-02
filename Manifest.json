@@ -1,0 +1,15 @@
+{
+"name": "Moderation Support System",
+"short_name": "Moderation System",
+"icons": [
+    {
+    "src": "Favicon.png",
+    "sizes": "512x512",
+    "type": "image/png"
+    }
+],
+"start_url": ".",
+"display": "standalone",
+"background_color": "#00c800",
+"theme_color": "#00fff2"
+}
