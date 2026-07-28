@@ -1,25 +1,73 @@
-/* body {
-	font-size: 3rem;
-	text-align: center;
-	font-family: Arial, sans-serif;
-	background-color: #00fff2;
+body {
+    /* font-size: 48px;
+    text-align: center;
+    font-family: Arial, sans-serif; */
+    background-color: #00fff2;
 }
 
-button {
-	background: none;
-	border: none;
-	transition: transform 0.1s;
+#login {
+    display: none;
 }
 
-input[type="submit"] {
-	font-size: 3rem;
+#email {
+    size: 30;
 }
 
-input[type="text"] {
-	font-size: 3rem;
+#password {
+    size: 30;
 }
 
-#Countdown0 {
-	font-size: 10rem;
+#loginBtn {
+
 }
- */
+
+#loginerr {
+    color:red;
+}
+
+#app {
+    display: none;
+}
+
+#availabilty {
+    display: none;
+}
+
+#releaseBtn {
+    display: none;
+    margin-bottom: 20px;
+    margin-right: 20px;
+}
+
+#punishBtn {
+    display: none;
+    margin-bottom: 20px;
+}
+
+#punish {
+    display: none;
+}
+
+#time {
+    size: 30;
+}
+
+#okBtn {
+    margin-bottom: 10px;
+}
+
+#cancelBtn {
+    margin-bottom: 20px;
+}
+
+#refreshBtn  {
+
+}
+
+#logoutBtn {
+
+}
+
+#alarm {
+    display: none;
+}
