@@ -17,13 +17,16 @@ let i1 = null;
 auth.onAuthStateChanged(user => {
     if (user) {
         i0 = setInterval(() => {
-            let day = new Date().setUTCHours(0, 0, 0, 0)
+            let date = new Date();
+            if (date.getHours() < 12) {date.setHours(0, 0, 0, 0);}
+            else {date.setHours(12, 0, 0, 0);}
+            date = date.getTime()
             db.ref("/lastLogin").get().then(s0 => {
-                if (day - s0.val() >= 43200000) {
+                if (date - s0.val() >= 43200000) {
                     db.ref().update({
                         "/firstPeriod": 15,
                         "/secondPeriod": 15,
-                        "/lastLogin": day
+                        "/lastLogin": date
                     }).then(() => {
                         location.reload();
                     });
@@ -33,10 +36,8 @@ auth.onAuthStateChanged(user => {
         i1 = setInterval(() => {
             db.ref("/releaseEnd").get().then(s0 => {
                 if (s0.val() > 0 && s0.val() < Date.now()) {
-                    document.getElementById('alarm').style.display = 'block';
-                    if (audio.paused) {
-                        audio.play();
-                    }
+                    document.getElementById('alarm').style.display = 'flex';
+                    if (audio.paused) {audio.play();}
                 }
             });
         }, 500);
@@ -50,16 +51,11 @@ auth.onAuthStateChanged(user => {
 });
 
 document.getElementById('loginBtn').addEventListener('click', () => {
-    document.getElementById('login').querySelector('p').textContent = '';
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     if (email && password) {
-        document.getElementById('login').querySelectorAll('input').forEach(e => {
-            e.value = '';
-        })
-        auth.signInWithEmailAndPassword(email, password).catch(err => {
-            document.getElementById('login').querySelector('p').textContent = err.message;
-        });
+        document.getElementById('login').querySelectorAll('input').forEach(e => {e.value = '';})
+        auth.signInWithEmailAndPassword(email, password).catch(err => {alert(err.message);});
     } else {alert('You have to fill both fields!')}
 });
 
@@ -118,7 +114,7 @@ document.getElementById('okBtn').addEventListener('click', () => {
                     "/firstPeriod": 0,
                     "/secondPeriod": secondPeriod - punishmentTime + firstPeriod,}
                 } else {
-                    d = {"/firstPeriod": firstPeriod - punishmentTime,}
+                    d = {"/firstPeriod": firstPeriod - punishmentTime}
                 }
                 db.ref().update(d).then(() => {
                     document.getElementById("time").value = '';
@@ -141,17 +137,20 @@ document.getElementById('cancelBtn').addEventListener('click', () => {
 });
 
 function refreshAvailability() {
-    document.getElementById('availability').querySelector('p').innerText = 'LOADING'
-    let i = setInterval(() => {
-        if (!(document.getElementById('availability').querySelector('p').innerText === 'LOADING...')) {
-            document.getElementById('availability').querySelector('p').innerText += '.'
-        } else {
-            document.getElementById('availability').querySelector('p').innerText = 'LOADING'
-        }
-    }, 200);
     document.getElementById('releaseBtn').style.display = 'none';
     document.getElementById('punishBtn').style.display = 'none';
     document.getElementById('availability').style.display = 'block';
+    const el = document.getElementById('availability').querySelector('p')
+    el.innerHTML = "<span class='centered0'>LOADING&nbsp;&nbsp;&nbsp;</span>"
+    let i = setInterval(() => {
+        const content = el.innerText.replace(/\u00A0/g, '');
+        const nb = (el.innerText.match(/\u00A0/g) || []).length - 1
+        if (!(content === 'LOADING...')) {
+            el.innerHTML = `<span class='centered0'>${content+'.'+'\u00A0'.repeat(nb)}</span>`
+        } else {
+            el.innerHTML = `<span class='centered0'>LOADING&nbsp;&nbsp;&nbsp;</span>`
+        }
+    }, 150);
     Promise.all([
         db.ref("/firstPeriod").get(),
         db.ref("/secondPeriod").get(),
@@ -163,27 +162,27 @@ function refreshAvailability() {
         const dayName = new Date(s2.val()).toLocaleDateString('en-US', { weekday: 'long' });
         const daydate = new Date(s2.val()).toLocaleDateString('en-CA');
         const releaseEnd = s3.val()
-        let text = `As of ${dayName}, ${daydate}:\n`
+        let text = `<span class='centered1'>As of <b>${dayName}, ${daydate}</b>:</span><br>`
         if (firstPeriod > 0 && secondPeriod > 0) {
-            text += `The Device is available for 2 periods:
-The first period is ${firstPeriod} minutes long.
-The second period is ${secondPeriod} minutes long.`;
+            text += `The Device is available for <b>2</b> periods:<br>
+The first period is <b>${firstPeriod}</b> ${firstPeriod > 1 ? 'minutes' : 'minute'} long.<br>
+The second period is <b>${secondPeriod}</b> ${secondPeriod > 1 ? 'minutes' : 'minute'} long.`;
         } else if (firstPeriod > 0) {
-            text += `The Device is available for 1 period:
-That period is ${firstPeriod} minutes long.`;
+            text += `The Device is available for <b>1</b> period:<br>
+That period is <b>${firstPeriod}</b> ${firstPeriod > 1 ? 'minutes' : 'minute'} long.`;
         } else if (secondPeriod > 0) {
-            text += `The Device is available for 1 period:
-That period is ${secondPeriod} minutes long.`;
+            text += `The Device is available for <b>1</b> period:<br>
+That period is <b>${secondPeriod}</b> ${secondPeriod > 1 ? 'minutes' : 'minute'} long.`;
         } else {
-            text += `The Device is no longer available.`;
+            text += `The Device is <b>no longer</b> available.`;
         }
         if (releaseEnd > 0) {
-            text += `\nThe Device is currently released
-It must me taken at ${new Date(releaseEnd).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}`;
+            text += `<br>The Device is currently released
+It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}</b>`;
         }
         clearInterval(i)
         i = null
-        document.getElementById('availability').querySelector('p').innerText = text
+        el.innerHTML = text
         if (!(firstPeriod === 0 && secondPeriod === 0)) {
             document.getElementById('punishBtn').style.display = 'inline-block';
             if (releaseEnd === 0) {

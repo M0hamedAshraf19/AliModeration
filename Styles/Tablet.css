@@ -1,0 +1,122 @@
+body {
+    font-size: 48px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background-color: #00fff2;
+}
+
+p {
+    margin: 15px auto 30px auto;
+    text-align: left;
+    width: fit-content;
+}
+
+.centered0 {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+.centered1 {
+    font-size: 70px;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+button {
+    font-size: 40px;
+    background-color: #1052e1;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+#login {
+    display: none;
+}
+
+#email {
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+
+#password {
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+
+#loginBtn {
+    margin-top: 20px;
+}
+
+#app {
+    display: none;
+}
+
+#availabilty {
+    display: none;
+}
+
+#releaseBtn {
+    display: none;
+    margin-bottom: 30px;
+    margin-right: 240px;
+}
+
+#punishBtn {
+    display: none;
+    margin-bottom: 30px;
+}
+
+#punish {
+    display: none;
+}
+
+#time {
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+
+#okBtn {
+    margin-left: 30px;
+}
+
+#cancelBtn {
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+#refreshBtn  {
+    margin-bottom: 29px;
+}
+
+#logoutBtn {
+    margin-top: 1px;
+}
+
+#alarm {
+    max-width: 50vw;
+    max-height: 50vh;
+    width: 50vw;
+    height: 50vw;
+    overflow-y: auto;
+    box-sizing: border-box;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: red;
+    border-radius: 12px;
+    text-align: center;
+    z-index: 10;
+}
+
+#pauseAudioBtn {
+    margin-top: 30px;
+}
