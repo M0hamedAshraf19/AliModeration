@@ -114,6 +114,7 @@ document.getElementById('punishBtn').addEventListener('click', () => {
 document.getElementById('okBtn').addEventListener('click', () => {
     const punishmentTime = parseInt(document.getElementById("time").value, 10);
     if (punishmentTime) {
+        document.getElementById("time").value = '';
         if (firstPeriod + secondPeriod - punishmentTime >= 0) {
             let d;
             if (punishmentTime === firstPeriod + secondPeriod) {
@@ -127,7 +128,6 @@ document.getElementById('okBtn').addEventListener('click', () => {
             } else {
                 d = {"/firstPeriod": firstPeriod - punishmentTime}
             }
-            document.getElementById("time").value = '';
             db.ref().update(d)
         } else {
             alert('Punishment time is too long!')
