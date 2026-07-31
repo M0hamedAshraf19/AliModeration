@@ -56,7 +56,9 @@ button {
     display: none;
 }
 
-#availability {}
+#availability {
+    display: block;
+}
 
 #releaseBtn {
     display: none;

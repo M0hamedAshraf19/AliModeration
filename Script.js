@@ -147,8 +147,8 @@ function refreshAvailability() {
     document.getElementById('punish').style.display = 'none';
     document.getElementById('releaseBtn').style.display = 'none';
     document.getElementById('punishBtn').style.display = 'none';
-    document.getElementById('availability').style.display = 'block';;
-    const dayName = new Date(lastLogin).toLocaleDateString('en-US', { weekday: 'long' });
+    document.getElementById('availability').style.display = 'block';
+    const dayName = new Date(lastLogin).toLocaleDateString('en-US', {weekday: 'long'});
     const daydate = new Date(lastLogin).toLocaleDateString('en-CA');
     let text = `<span class='centered1'>As of <b>${dayName}, ${daydate}</b>:</span><br>`
     if (firstPeriod > 0 && secondPeriod > 0) {
@@ -177,7 +177,6 @@ It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour:
             document.getElementById('releaseBtn').style.display = 'inline-block';
         }
     }
-    document.getElementById('availability').style.display = 'block';
 }
 
 document.getElementById('pauseAudioBtn').addEventListener('click', () => {
