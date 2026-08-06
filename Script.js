@@ -109,6 +109,7 @@ document.getElementById('releaseBtn').addEventListener('click', () => {
 document.getElementById('punishBtn').addEventListener('click', () => {
     document.getElementById('availability').style.display = 'none';
     document.getElementById('punish').style.display = 'block';
+    document.getElementById('time').focus();
 });
 
 document.getElementById('okBtn').addEventListener('click', () => {
