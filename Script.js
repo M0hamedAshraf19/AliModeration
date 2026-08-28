@@ -151,7 +151,7 @@ punishEl.querySelector('form').addEventListener('submit', function(e) {
                 alert('Punishment time is too long!')
             }
         } else {
-            alert('You have to enter an integar!')
+            alert('You have to enter an integar bigger than 0!')
         }
     } else {
         alert('You have to enter a value!')
