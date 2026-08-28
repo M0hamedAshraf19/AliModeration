@@ -80,10 +80,6 @@ button {
     margin-bottom: 15px;
 }
 
-#okBtn {
-    margin-left: 30px;
-}
-
 #cancelBtn {
     margin-top: 20px;
     margin-bottom: 30px;
@@ -91,10 +87,6 @@ button {
 
 #refreshBtn  {
     margin-bottom: 29px;
-}
-
-#logoutBtn {
-    margin-top: 1px;
 }
 
 #alarm {
@@ -120,4 +112,8 @@ button {
 
 #pauseAudioBtn {
     margin-top: 30px;
+}
+
+input[type='submit'] {
+    font-size: 25px;
 }

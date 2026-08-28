@@ -48,10 +48,6 @@ button {
     margin-bottom: 15px;
 }
 
-#loginBtn {
-    margin-top: 20px;
-}
-
 #app {
     display: none;
 }
@@ -78,10 +74,6 @@ button {
 #time {
     font-size: 30px;
     margin-bottom: 15px;
-}
-
-#okBtn {
-    margin-left: 30px;
 }
 
 #cancelBtn {
@@ -120,4 +112,8 @@ button {
 
 #pauseAudioBtn {
     margin-top: 30px;
+}
+
+input[type='submit'] {
+    font-size: 35px;
 }

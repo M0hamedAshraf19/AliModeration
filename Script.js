@@ -11,27 +11,26 @@ firebase.initializeApp(fbConf);
 const db = firebase.database();
 const auth = firebase.auth();
 const audio = new Audio("https://www.myinstants.com/media/sounds/cuckoo-clock-alarm.mp3");audio.loop = true;
-let i0 = null;
-let i1 = null;
-let i2 = null;
-let i3 = null;
-let firstPeriod = null;
-let secondPeriod = null;
-let releaseEnd = null;
-let lastLogin = null;
+let i0 = null; let i1 = null; let i2 = null; let i3 = null;
+let firstPeriod = null; let secondPeriod = null; let releaseEnd = null; let lastLogin = null;
+
+const alarmEl = document.getElementById('alarm');
+const loginEl = document.getElementById('login');
+const appEl = document.getElementById('app');
+const availabilityEl = document.getElementById('availability')
+const availabilityPEl = availabilityEl.querySelector('p')
 
 auth.onAuthStateChanged(user => {
     if (user) {
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        const el = document.getElementById('availability').querySelector('p')
+        loginEl.style.display = 'none';
+        appEl.style.display = 'block';
         i0 = setInterval(() => {
-            const content = el.innerText.replace(/\u00A0/g,'');
-            const nb = (el.innerText.match(/\u00A0/g) || []).length - 1
+            const content = availabilityPEl.innerText.replace(/\u00A0/g,'');
+            const nb = (availabilityPEl.innerText.match(/\u00A0/g) || []).length - 1
             if (!(content === 'LOADING...')) {
-                el.innerHTML = `<span class='centered0'>${content+'.'+'\u00A0'.repeat(nb)}</span>`
+                availabilityPEl.innerHTML = `<span class='centered0'>${content+'.'+'\u00A0'.repeat(nb)}</span>`
             } else {
-                el.innerHTML = `<span class='centered0'>LOADING&nbsp;&nbsp;&nbsp;</span>`
+                availabilityPEl.innerHTML = `<span class='centered0'>LOADING&nbsp;&nbsp;&nbsp;</span>`
             }
         }, 150);
         i1 = (s) => {
@@ -61,7 +60,7 @@ auth.onAuthStateChanged(user => {
             if (i3 === null) {
                 i3 = setInterval(() => {
                     if (audio.paused && releaseEnd > 0 && releaseEnd < Date.now()) {
-                        document.getElementById('alarm').style.display = 'flex';
+                        alarmEl.style.display = 'flex';
                         audio.play();
                     }
                 }, 1000);
@@ -69,18 +68,30 @@ auth.onAuthStateChanged(user => {
         };
         db.ref("/").on("value", i1)
     } else {
-        document.getElementById('app').style.display = 'none';
-        document.getElementById('login').style.display = 'block';
+        appEl.style.display = 'none';
+        loginEl.style.display = 'block';
+        email.focus()
     }
 });
 
-document.getElementById('loginBtn').addEventListener('click', () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    if (email && password) {
-        document.getElementById('login').querySelectorAll('input').forEach(e => {e.value = ''})
-        auth.signInWithEmailAndPassword(email, password).catch(err => {alert(err.message)});
-    } else {alert('You have to fill both fields!')}
+const email = document.getElementById('email');
+
+loginEl.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault()
+    const password = document.getElementById('password');
+    let m = email.value; let p = password.value
+    if (m && p) {
+        auth.signInWithEmailAndPassword(m, p).catch(err => {alert(err.message)});
+        email.value = ''; password.value = '';
+    } else {
+        if (m) {
+            alert('You have to fill the passowrd field!')
+        } else if (p) {
+            alert('You have to fill the email field!')
+        } else{
+            alert("You haven't filled any of the fields!")
+        }
+    }
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -91,8 +102,12 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 });
 
 document.getElementById('refreshBtn').addEventListener('click', () => {location.reload()});
+const releaseBtnEl = document.getElementById('releaseBtn');
+const punishBtnEl = document.getElementById('punishBtn');
+const punishEl = document.getElementById('punish');
+const timeEl = document.getElementById('time');
 
-document.getElementById('releaseBtn').addEventListener('click', () => {
+releaseBtnEl.addEventListener('click', () => {
     let d = null
     if (firstPeriod > 0) {
         d = {
@@ -106,49 +121,54 @@ document.getElementById('releaseBtn').addEventListener('click', () => {
     db.ref().update(d)
 });
 
-document.getElementById('punishBtn').addEventListener('click', () => {
-    document.getElementById('availability').style.display = 'none';
-    document.getElementById('punish').style.display = 'block';
-    document.getElementById('time').focus();
+punishBtnEl.addEventListener('click', () => {
+    availabilityEl.style.display = 'none';
+    punishEl.style.display = 'block';
+    timeEl.focus();
 });
 
-document.getElementById('okBtn').addEventListener('click', () => {
-    const punishmentTime = parseInt(document.getElementById("time").value, 10);
+punishEl.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault()
+    let punishmentTime = timeEl.value
     if (punishmentTime) {
-        document.getElementById("time").value = '';
-        if (firstPeriod + secondPeriod - punishmentTime >= 0) {
-            let d;
-            if (punishmentTime === firstPeriod + secondPeriod) {
-                d = {
-                "/firstPeriod": 0,
-                "/secondPeriod": 0,};
-            } else if (punishmentTime > firstPeriod) {
-                d = {
-                "/firstPeriod": 0,
-                "/secondPeriod": secondPeriod - punishmentTime + firstPeriod,}
+        if (punishmentTime = parseInt(punishmentTime, 10)) {
+            timeEl.value = '';
+            if (firstPeriod + secondPeriod - punishmentTime >= 0) {
+                let d;
+                if (punishmentTime === firstPeriod + secondPeriod) {
+                    d = {
+                    "/firstPeriod": 0,
+                    "/secondPeriod": 0,};
+                } else if (punishmentTime > firstPeriod) {
+                    d = {
+                    "/firstPeriod": 0,
+                    "/secondPeriod": secondPeriod - punishmentTime + firstPeriod,}
+                } else {
+                    d = {"/firstPeriod": firstPeriod - punishmentTime}
+                }
+                db.ref().update(d)
             } else {
-                d = {"/firstPeriod": firstPeriod - punishmentTime}
+                alert('Punishment time is too long!')
             }
-            db.ref().update(d)
         } else {
-            alert('Punishment time is too long!')
+            alert('You have to enter an integar!')
         }
     } else {
-        alert('No value entered')
+        alert('You have to enter a value!')
     }
-});
+})
 
 document.getElementById('cancelBtn').addEventListener('click', () => {
-    document.getElementById("time").value = ''
-    document.getElementById('punish').style.display = 'none';
-    document.getElementById('availability').style.display = 'block';
+    timeEl.value = ''
+    punishEl.style.display = 'none';
+    availabilityEl.style.display = 'block';
 });
 
 function refreshAvailability() {
-    document.getElementById('punish').style.display = 'none';
-    document.getElementById('releaseBtn').style.display = 'none';
-    document.getElementById('punishBtn').style.display = 'none';
-    document.getElementById('availability').style.display = 'block';
+    punishEl.style.display = 'none';
+    releaseBtnEl.style.display = 'none';
+    punishBtnEl.style.display = 'none';
+    availabilityEl.style.display = 'block';
     const dayName = new Date(lastLogin).toLocaleDateString('en-US', {weekday: 'long'});
     const daydate = new Date(lastLogin).toLocaleDateString('en-CA');
     let text = `<span class='centered1'>As of <b>${dayName}, ${daydate}</b>:</span><br>`
@@ -171,19 +191,19 @@ It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour:
     }
     clearInterval(i0)
     i0 = null
-    document.getElementById('availability').querySelector('p').innerHTML = text
+    availabilityPEl.innerHTML = text
     if (!(firstPeriod === 0 && secondPeriod === 0)) {
-        document.getElementById('punishBtn').style.display = 'inline-block';
+        punishBtnEl.style.display = 'inline-block';
         if (releaseEnd === 0) {
-            document.getElementById('releaseBtn').style.display = 'inline-block';
+            releaseBtnEl.style.display = 'inline-block';
         }
     }
 }
 
 document.getElementById('pauseAudioBtn').addEventListener('click', () => {
-        document.getElementById('alarm').style.display = 'none';
-        db.ref("/releaseEnd").set(0).then(() => {
-            audio.pause();
-            audio.currentTime = 0;
-        });
+    alarmEl.style.display = 'none';
+    db.ref("/releaseEnd").set(0).then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
 });
