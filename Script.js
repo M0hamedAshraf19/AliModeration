@@ -10,7 +10,7 @@ const fbConf = {
 firebase.initializeApp(fbConf);
 const db = firebase.database();
 const auth = firebase.auth();
-const audio = new Audio("https://www.myinstants.com/media/sounds/cuckoo-clock-alarm.mp3");audio.loop = true;
+const audio = new Audio('https://www.myinstants.com/media/sounds/cuckoo-clock-alarm.mp3');audio.loop = true;
 let i0 = null; let i1 = null; let i2 = null; let i3 = null;
 let firstPeriod = null; let secondPeriod = null; let releaseEnd = null; let lastLogin = null;
 
@@ -35,10 +35,10 @@ auth.onAuthStateChanged(user => {
         }, 150);
         i1 = (s) => {
             if (i2 !== null) {clearInterval(i2);i2 = null}
-            firstPeriod = s.child("firstPeriod").val();
-            secondPeriod = s.child("secondPeriod").val();
-            releaseEnd = s.child("releaseEnd").val();
-            lastLogin = s.child("lastLogin").val()
+            firstPeriod = s.child('firstPeriod').val();
+            secondPeriod = s.child('secondPeriod').val();
+            releaseEnd = s.child('releaseEnd').val();
+            lastLogin = s.child('lastLogin').val()
             let date = new Date();
             if (date.getHours() < 12) {date.setHours(0, 0, 0, 0)}
             else {date.setHours(12, 0, 0, 0)}
@@ -51,9 +51,9 @@ auth.onAuthStateChanged(user => {
                 date = date.getTime()
                 if (date - lastLogin >= 43200000) {
                     db.ref().update({
-                        "/firstPeriod": 15,
-                        "/secondPeriod": 15,
-                        "/lastLogin": date
+                        '/firstPeriod': 15,
+                        '/secondPeriod': 15,
+                        '/lastLogin': date
                     });
                 }
             }, lastLogin === null ? 10 : 60000);
@@ -66,7 +66,7 @@ auth.onAuthStateChanged(user => {
                 }, 1000);
             }
         };
-        db.ref("/").on("value", i1)
+        db.ref('/').on('value', i1)
     } else {
         appEl.style.display = 'none';
         loginEl.style.display = 'block';
@@ -95,7 +95,7 @@ loginEl.querySelector('form').addEventListener('submit', function(e) {
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
-    db.ref("/").off("value", i1);i1 = null;
+    db.ref('/').off('value', i1);i1 = null;
     clearInterval(i2);i2 = null;
     clearInterval(i3);i3 = null;
     auth.signOut();
@@ -111,12 +111,12 @@ releaseBtnEl.addEventListener('click', () => {
     let d = null
     if (firstPeriod > 0) {
         d = {
-        "/releaseEnd": Date.now() + firstPeriod*60*1000,
-        "/firstPeriod": 0,};
+        '/releaseEnd': Date.now() + firstPeriod*60*1000,
+        '/firstPeriod': 0,};
     } else {
         d = {
-        "/releaseEnd": Date.now() + secondPeriod*60*1000,
-        "/secondPeriod": 0,};
+        '/releaseEnd': Date.now() + secondPeriod*60*1000,
+        '/secondPeriod': 0,};
     }
     db.ref().update(d)
 });
@@ -137,14 +137,14 @@ punishEl.querySelector('form').addEventListener('submit', function(e) {
                 let d;
                 if (punishmentTime === firstPeriod + secondPeriod) {
                     d = {
-                    "/firstPeriod": 0,
-                    "/secondPeriod": 0,};
+                    '/firstPeriod': 0,
+                    '/secondPeriod': 0,};
                 } else if (punishmentTime > firstPeriod) {
                     d = {
-                    "/firstPeriod": 0,
-                    "/secondPeriod": secondPeriod - punishmentTime + firstPeriod,}
+                    '/firstPeriod': 0,
+                    '/secondPeriod': secondPeriod - punishmentTime + firstPeriod,}
                 } else {
-                    d = {"/firstPeriod": firstPeriod - punishmentTime}
+                    d = {'/firstPeriod': firstPeriod - punishmentTime}
                 }
                 db.ref().update(d)
             } else {
@@ -202,7 +202,7 @@ It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour:
 
 document.getElementById('pauseAudioBtn').addEventListener('click', () => {
     alarmEl.style.display = 'none';
-    db.ref("/releaseEnd").set(0).then(() => {
+    db.ref('/releaseEnd').set(0).then(() => {
         audio.pause();
         audio.currentTime = 0;
     });
