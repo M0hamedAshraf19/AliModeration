@@ -22,6 +22,9 @@ const availabilityPEl = availabilityEl.querySelector('p')
 
 auth.onAuthStateChanged(user => {
     if (user) {
+        if (Notification.permission === "default") {
+            Notification.requestPermission();
+        }
         loginEl.style.display = 'none';
         appEl.style.display = 'block';
         i0 = setInterval(() => {
@@ -85,9 +88,6 @@ loginEl.querySelector('form').addEventListener('submit', function(e) {
     const password = document.getElementById('password');
     let m = email.value; let p = password.value
     if (m && p) {
-        if (Notification.permission === "default") {
-            Notification.requestPermission();
-        }
         auth.signInWithEmailAndPassword(m, p).catch(err => {alert(err.message)});
         email.value = ''; password.value = '';
     } else {
