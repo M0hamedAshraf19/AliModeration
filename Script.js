@@ -1,6 +1,26 @@
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('SW.js');
 }
+
+function getCookie(name) {
+    const cookie=document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+    return cookie ? cookie[2] : null;
+}
+
+function setCookie(name, value='', expires=null) {
+    if (expires) {
+        document.cookie=`${name}=${value}; expires=${expires.toUTCString()}; path=${window.location.pathname}`
+    } else {
+        document.cookie=`${name}=${value}; path=${window.location.pathname}`
+    }
+}
+
+function browseCookies() {
+    document.cookie.split('; ').forEach(function(cookie) {
+        console.log(cookie)
+    });
+}
+
 const fbConf = {
     apiKey: 'AIzaSyD_wdSmJfQxNxvNkTSwoVu-Yd2nbzbWPsw',
     authDomain: 'moderationdb.firebaseapp.com',
@@ -22,84 +42,68 @@ const loginEl = document.getElementById('login');
 const appEl = document.getElementById('app');
 const availabilityEl = document.getElementById('availability')
 const availabilityPEl = availabilityEl.querySelector('p')
+const email = document.getElementById('email');
 
 async function showAlertNotification() {
-    try {
-        if ('serviceWorker' in navigator) {
-            console.log('SW')
-            const registration = await navigator.serviceWorker.ready;
-            await registration.showNotification("Alert!", {
-                body: "The Release Period is Over!",
-                icon: "Favicon.png",
-            });
-        } else if ('Notification' in window) {
-            console.log('NM')
-            new Notification("Alert!", {
-                body: "The Release Period is Over!",
-                icon: "Favicon.png",
-            });
-        }
-    } catch (err) {
-        console.warn('Notification failed:', err);
-    }
+    const registration = await navigator.serviceWorker.ready;
+    await registration.showNotification("Alert!", {
+        body: "The Release Period is Over!",
+        icon: "Favicon.png",
+    });
 }
 
-auth.onAuthStateChanged(user => {
-    if (user) {
-        loginEl.style.display = 'none';
-        appEl.style.display = 'block';
-        i0 = setInterval(() => {
-            const content = availabilityPEl.innerText.replace(/\u00A0/g,'');
-            const nb = (availabilityPEl.innerText.match(/\u00A0/g) || []).length - 1
-            if (!(content === 'LOADING...')) {
-                availabilityPEl.innerHTML = `<span class='centered0'>${content+'.'+'\u00A0'.repeat(nb)}</span>`
-            } else {
-                availabilityPEl.innerHTML = `<span class='centered0'>LOADING&nbsp;&nbsp;&nbsp;</span>`
-            }
-        }, 150);
-        i1 = (s) => {
-            if (i2 !== null) {clearInterval(i2);i2 = null}
-            firstPeriod = s.child('firstPeriod').val();
-            secondPeriod = s.child('secondPeriod').val();
-            releaseEnd = s.child('releaseEnd').val();
-            lastLogin = s.child('lastLogin').val()
+if (getCookie('loggedin') === 'True') {
+    loginEl.style.display = 'none';
+    appEl.style.display = 'block';
+    i0 = setInterval(() => {
+        const content = availabilityPEl.innerText.replace(/\u00A0/g,'');
+        const nb = (availabilityPEl.innerText.match(/\u00A0/g) || []).length - 1
+        if (!(content === 'LOADING...')) {
+            availabilityPEl.innerHTML = `<span class='centered0'>${content+'.'+'\u00A0'.repeat(nb)}</span>`
+        } else {
+            availabilityPEl.innerHTML = `<span class='centered0'>LOADING&nbsp;&nbsp;&nbsp;</span>`
+        }
+    }, 150);
+    i1 = (s) => {
+        if (i2 !== null) {clearInterval(i2);i2 = null}
+        firstPeriod = s.child('firstPeriod').val();
+        secondPeriod = s.child('secondPeriod').val();
+        releaseEnd = s.child('releaseEnd').val();
+        lastLogin = s.child('lastLogin').val()
+        let date = new Date();
+        if (date.getHours() < 12) {date.setHours(0, 0, 0, 0)}
+        else {date.setHours(12, 0, 0, 0)}
+        if (date.getTime() - lastLogin < 43200000) {refreshAvailability();}
+        else {lastLogin = null}
+        i2 = setInterval(() => {
             let date = new Date();
             if (date.getHours() < 12) {date.setHours(0, 0, 0, 0)}
             else {date.setHours(12, 0, 0, 0)}
-            if (date.getTime() - lastLogin < 43200000) {refreshAvailability();}
-            else {lastLogin = null}
-            i2 = setInterval(() => {
-                let date = new Date();
-                if (date.getHours() < 12) {date.setHours(0, 0, 0, 0)}
-                else {date.setHours(12, 0, 0, 0)}
-                date = date.getTime()
-                if (date - lastLogin >= 43200000) {
-                    db.ref().update({
-                        '/firstPeriod': 15,
-                        '/secondPeriod': 15,
-                        '/lastLogin': date
-                    });
-                }
-            }, lastLogin === null ? 10 : 60000);
-            if (i3 === null) {
-                i3 = setInterval(() => {
-                    if (audio.paused && alarmEl.style.display !== 'flex' && releaseEnd > 0 && releaseEnd < Date.now()) {
-                        showAlertNotification();
-                        alarmEl.style.display = 'flex';
-                        // audio.play();
-                    }
-                }, 1000);
+            date = date.getTime()
+            if (date - lastLogin >= 43200000) {
+                db.ref().update({
+                    '/firstPeriod': 15,
+                    '/secondPeriod': 15,
+                    '/lastLogin': date
+                });
             }
-        };
-        db.ref('/').on('value', i1)
-    } else {
-        appEl.style.display = 'none';
-        loginEl.style.display = 'block';
-        email.focus()
-    }
-});
-
-const email = document.getElementById('email');
+        }, lastLogin === null ? 10 : 60000);
+        if (i3 === null) {
+            i3 = setInterval(() => {
+                if (audio.paused && alarmEl.style.display !== 'flex' && releaseEnd > 0 && releaseEnd < Date.now()) {
+                    showAlertNotification();
+                    alarmEl.style.display = 'flex';
+                    // audio.play();
+                }
+            }, 1000);
+        }
+    };
+    db.ref('/').on('value', i1)
+} else {
+    appEl.style.display = 'none';
+    loginEl.style.display = 'block';
+    email.focus();
+}
 
 loginEl.querySelector('form').addEventListener('submit', function(e) {
     e.preventDefault()
@@ -109,8 +113,10 @@ loginEl.querySelector('form').addEventListener('submit', function(e) {
         if (Notification.permission === "default") {
             Notification.requestPermission();
         }
-        auth.signInWithEmailAndPassword(m, p).catch(err => {alert(err.message)});
-        email.value = ''; password.value = '';
+        setCookie('loggedin', 'True');
+        auth.signInWithEmailAndPassword(m, p)
+        .then(() => {location.reload()})
+        .catch(err => {alert(err.message)});
     } else {
         if (m) {
             alert('You have to fill the passowrd field!')
@@ -123,10 +129,9 @@ loginEl.querySelector('form').addEventListener('submit', function(e) {
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
-    db.ref('/').off('value', i1);i1 = null;
-    clearInterval(i2);i2 = null;
-    clearInterval(i3);i3 = null;
+    setCookie('loggedin', '', new Date(0))
     auth.signOut();
+    location.reload()
 });
 
 document.getElementById('refreshBtn').addEventListener('click', () => {location.reload()});
@@ -193,6 +198,7 @@ document.getElementById('cancelBtn').addEventListener('click', () => {
 });
 
 function refreshAvailability() {
+    console.log('aaa')
     punishEl.style.display = 'none';
     releaseBtnEl.style.display = 'none';
     punishBtnEl.style.display = 'none';
