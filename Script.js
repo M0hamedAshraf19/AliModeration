@@ -1,3 +1,6 @@
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('SW.js');
+}
 const fbConf = {
     apiKey: 'AIzaSyD_wdSmJfQxNxvNkTSwoVu-Yd2nbzbWPsw',
     authDomain: 'moderationdb.firebaseapp.com',
@@ -80,14 +83,33 @@ auth.onAuthStateChanged(user => {
 
 const email = document.getElementById('email');
 
+async function showAlertNotification() {
+    try {
+        if ('serviceWorker' in navigator) {
+            console.log('SW')
+            const registration = await navigator.serviceWorker.ready;
+            await registration.showNotification("Alert!", {
+                body: "The Release Period is Over!",
+                icon: "Favicon.png",
+            });
+        } else if ('Notification' in window) {
+            console.log('NM')
+            new Notification("Alert!", {
+                body: "The Release Period is Over!",
+                icon: "Favicon.png",
+            });
+        }
+    } catch (err) {
+        console.warn('Notification failed:', err);
+    }
+}
+
 loginEl.querySelector('form').addEventListener('submit', function(e) {
     e.preventDefault()
     const password = document.getElementById('password');
     let m = email.value; let p = password.value
     if (m && p) {
-        if (Notification.permission === "default") {
-            Notification.requestPermission();
-        }
+        showAlertNotification()
         auth.signInWithEmailAndPassword(m, p).catch(err => {alert(err.message)});
         email.value = ''; password.value = '';
     } else {
