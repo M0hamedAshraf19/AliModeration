@@ -60,6 +60,10 @@ auth.onAuthStateChanged(user => {
             if (i3 === null) {
                 i3 = setInterval(() => {
                     if (audio.paused && releaseEnd > 0 && releaseEnd < Date.now()) {
+                        new Notification("Alert!", {
+                            body: "The Release Period is Over!",
+                            icon: "Favicon.png",
+                        });
                         alarmEl.style.display = 'flex';
                         audio.play();
                     }
