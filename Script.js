@@ -83,7 +83,7 @@ auth.onAuthStateChanged(user => {
             }, lastLogin === null ? 10 : 60000);
             if (i3 === null) {
                 i3 = setInterval(() => {
-                    if (audio.paused && alarmEl.style.display === 'none' && releaseEnd > 0 && releaseEnd < Date.now()) {
+                    if (audio.paused && alarmEl.style.display !== 'flex' && releaseEnd > 0 && releaseEnd < Date.now()) {
                         showAlertNotification();
                         alarmEl.style.display = 'flex';
                         // audio.play();
@@ -215,8 +215,8 @@ That period is <b>${secondPeriod}</b> ${secondPeriod > 1 ? 'minutes' : 'minute'}
         text += `The Device is <b>no longer</b> available.`;
     }
     if (releaseEnd > 0) {
-        text = `The Device is currently released
-It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}</b><br>` + text;
+        text = `The Device is currently released.<br>
+It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}</b>.<br>` + text;
     }
     clearInterval(i0)
     i0 = null
