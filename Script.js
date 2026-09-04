@@ -10,6 +10,12 @@ const fbConf = {
 firebase.initializeApp(fbConf);
 const db = firebase.database();
 const auth = firebase.auth();
+
+if (Notification.permission === "default") {
+    Notification.requestPermission();
+}
+
+
 const audio = new Audio('https://www.myinstants.com/media/sounds/cuckoo-clock-alarm.mp3');audio.loop = true;
 let i0 = null; let i1 = null; let i2 = null; let i3 = null;
 let firstPeriod = null; let secondPeriod = null; let releaseEnd = null; let lastLogin = null;
@@ -206,8 +212,7 @@ It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour:
 
 document.getElementById('pauseAudioBtn').addEventListener('click', () => {
     alarmEl.style.display = 'none';
-    db.ref('/releaseEnd').set(0).then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
+    audio.pause();
+    audio.currentTime = 0;
+    db.ref('/releaseEnd').set(0);
 });
