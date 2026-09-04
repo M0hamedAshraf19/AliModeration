@@ -83,7 +83,7 @@ auth.onAuthStateChanged(user => {
             }, lastLogin === null ? 10 : 60000);
             if (i3 === null) {
                 i3 = setInterval(() => {
-                    if (audio.paused && releaseEnd > 0 && releaseEnd < Date.now()) {
+                    if (audio.paused && alarmEl.style.display === 'none' && releaseEnd > 0 && releaseEnd < Date.now()) {
                         showAlertNotification();
                         alarmEl.style.display = 'flex';
                         // audio.play();
