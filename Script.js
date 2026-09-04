@@ -10,12 +10,6 @@ const fbConf = {
 firebase.initializeApp(fbConf);
 const db = firebase.database();
 const auth = firebase.auth();
-
-if (Notification.permission === "default") {
-    Notification.requestPermission();
-}
-
-
 const audio = new Audio('https://www.myinstants.com/media/sounds/cuckoo-clock-alarm.mp3');audio.loop = true;
 let i0 = null; let i1 = null; let i2 = null; let i3 = null;
 let firstPeriod = null; let secondPeriod = null; let releaseEnd = null; let lastLogin = null;
@@ -91,6 +85,9 @@ loginEl.querySelector('form').addEventListener('submit', function(e) {
     const password = document.getElementById('password');
     let m = email.value; let p = password.value
     if (m && p) {
+        if (Notification.permission === "default") {
+            Notification.requestPermission();
+        }
         auth.signInWithEmailAndPassword(m, p).catch(err => {alert(err.message)});
         email.value = ''; password.value = '';
     } else {
