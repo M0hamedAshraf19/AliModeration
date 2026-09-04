@@ -86,7 +86,7 @@ auth.onAuthStateChanged(user => {
                     if (audio.paused && releaseEnd > 0 && releaseEnd < Date.now()) {
                         showAlertNotification();
                         alarmEl.style.display = 'flex';
-                        audio.play();
+                        // audio.play();
                     }
                 }, 1000);
             }
@@ -214,8 +214,8 @@ That period is <b>${secondPeriod}</b> ${secondPeriod > 1 ? 'minutes' : 'minute'}
         text += `The Device is <b>no longer</b> available.`;
     }
     if (releaseEnd > 0) {
-        text += `<br>The Device is currently released
-It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}</b>`;
+        text = `The Device is currently released
+It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}</b><br>` + text;
     }
     clearInterval(i0)
     i0 = null
@@ -230,7 +230,7 @@ It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour:
 
 document.getElementById('pauseAudioBtn').addEventListener('click', () => {
     alarmEl.style.display = 'none';
-    audio.pause();
-    audio.currentTime = 0;
+    // audio.pause();
+    // audio.currentTime = 0;
     db.ref('/releaseEnd').set(0);
 });
