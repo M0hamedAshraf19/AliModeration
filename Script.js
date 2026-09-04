@@ -199,7 +199,8 @@ function refreshAvailability() {
     availabilityEl.style.display = 'block';
     const dayName = new Date(lastLogin).toLocaleDateString('en-US', {weekday: 'long'});
     const daydate = new Date(lastLogin).toLocaleDateString('en-CA');
-    let text = `<span class='centered1'>As of <b>${dayName}, ${daydate}</b>:</span><br>`
+    let title = `<span class='centered1'>As of <b>${dayName}, ${daydate}</b>:</span><br>`
+    let text = ''
     if (firstPeriod > 0 && secondPeriod > 0) {
         text += `The Device is available for <b>2</b> periods:<br>
 The first period is <b>${firstPeriod}</b> ${firstPeriod > 1 ? 'minutes' : 'minute'} long.<br>
@@ -219,7 +220,7 @@ It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour:
     }
     clearInterval(i0)
     i0 = null
-    availabilityPEl.innerHTML = text
+    availabilityPEl.innerHTML = title + text
     if (!(firstPeriod === 0 && secondPeriod === 0)) {
         punishBtnEl.style.display = 'inline-block';
         if (releaseEnd === 0) {
