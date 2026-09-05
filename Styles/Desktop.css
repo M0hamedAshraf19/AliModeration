@@ -35,7 +35,7 @@ button {
 }
 
 #login {
-    display: none;
+    display: block;
 }
 
 #email {

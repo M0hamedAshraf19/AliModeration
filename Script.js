@@ -1,12 +1,8 @@
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('SW.js');
-}
-
+if ('serviceWorker' in navigator) {navigator.serviceWorker.register('SW.js');}
 function getCookie(name) {
     const cookie=document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
     return cookie ? cookie[2] : null;
 }
-
 function setCookie(name, value='', expires=null) {
     if (expires) {
         document.cookie=`${name}=${value}; expires=${expires.toUTCString()}; path=${window.location.pathname}`
@@ -14,13 +10,11 @@ function setCookie(name, value='', expires=null) {
         document.cookie=`${name}=${value}; path=${window.location.pathname}`
     }
 }
-
 function browseCookies() {
     document.cookie.split('; ').forEach(function(cookie) {
         console.log(cookie)
     });
 }
-
 const fbConf = {
     apiKey: 'AIzaSyD_wdSmJfQxNxvNkTSwoVu-Yd2nbzbWPsw',
     authDomain: 'moderationdb.firebaseapp.com',
@@ -30,93 +24,115 @@ const fbConf = {
     messagingSenderId: '279369179271',
     appId: '1:279369179271:web:545798f6d9b14d6c8a9822'
 };
-firebase.initializeApp(fbConf);
-const db = firebase.database();
-const auth = firebase.auth();
-const audio = new Audio('https://www.myinstants.com/media/sounds/cuckoo-clock-alarm.mp3');audio.loop = true;
-let i0 = null; let i1 = null; let i2 = null; let i3 = null;
-let firstPeriod = null; let secondPeriod = null; let releaseEnd = null; let lastLogin = null;
-
-const alarmEl = document.getElementById('alarm');
+firebase.initializeApp(fbConf); const db = firebase.database(); const auth = firebase.auth();
+let setPage = null;
+let loadingTimer = null;
+let dailyRefreshTimer = null;
+let alarmTimer = null;
+let firstPeriod = null;
+let secondPeriod = null;
+let releaseEnd = null;
+let lastLogin = null;
 const loginEl = document.getElementById('login');
-const appEl = document.getElementById('app');
-const availabilityEl = document.getElementById('availability')
-const availabilityPEl = availabilityEl.querySelector('p')
 const email = document.getElementById('email');
+const appEl = document.getElementById('app');
+const availabilityEl = document.getElementById('availability');
+const availabilityPEl = availabilityEl.querySelector('p');
+const punishBtnEl = document.getElementById('punishBtn');
+const punishEl = document.getElementById('punish');
+const timeEl = document.getElementById('time');
+const releaseBtnEl = document.getElementById('releaseBtn');
+const alarmEl = document.getElementById('alarm');
 
-async function showAlertNotification() {
-    const registration = await navigator.serviceWorker.ready;
-    await registration.showNotification("Alert!", {
-        body: "The Release Period is Over!",
-        icon: "Favicon.png",
-    });
+function loadingScr() {
+    if (loadingTimer === null) {
+        loginEl.style.display = 'none'; appEl.style.display = 'block';
+        loadingTimer = setInterval(() => {
+            const content = availabilityPEl.innerText.replace(/\u00A0/g,'');
+            const nb = (availabilityPEl.innerText.match(/\u00A0/g) || []).length - 1
+            if (!(content === 'LOADING...')) {
+                availabilityPEl.innerHTML = `<span class='centered0'>${content+'.'+'\u00A0'.repeat(nb)}</span>`
+            } else {
+                availabilityPEl.innerHTML = `<span class='centered0'>LOADING&nbsp;&nbsp;&nbsp;</span>`
+            }
+        }, 150);
+    }
 }
 
-if (getCookie('loggedin') === 'True') {
-    loginEl.style.display = 'none';
-    appEl.style.display = 'block';
-    i0 = setInterval(() => {
-        const content = availabilityPEl.innerText.replace(/\u00A0/g,'');
-        const nb = (availabilityPEl.innerText.match(/\u00A0/g) || []).length - 1
-        if (!(content === 'LOADING...')) {
-            availabilityPEl.innerHTML = `<span class='centered0'>${content+'.'+'\u00A0'.repeat(nb)}</span>`
-        } else {
-            availabilityPEl.innerHTML = `<span class='centered0'>LOADING&nbsp;&nbsp;&nbsp;</span>`
-        }
-    }, 150);
-    i1 = (s) => {
-        if (i2 !== null) {clearInterval(i2);i2 = null}
-        firstPeriod = s.child('firstPeriod').val();
-        secondPeriod = s.child('secondPeriod').val();
-        releaseEnd = s.child('releaseEnd').val();
+function getLoginDate() {
+    let date = new Date();
+    if (date.getHours() < 12) {date.setHours(0, 0, 0, 0)}
+    else {date.setHours(12, 0, 0, 0)}
+    return date.getTime()
+}
+
+if (getCookie('loggedin') === 'True') {loadingScr()}
+else {email.focus();}
+auth.onAuthStateChanged(user => { if (user) {
+    console.log('Hi')
+    setCookie('loggedin', 'True');
+    setPage = (s) => {
         lastLogin = s.child('lastLogin').val()
-        let date = new Date();
-        if (date.getHours() < 12) {date.setHours(0, 0, 0, 0)}
-        else {date.setHours(12, 0, 0, 0)}
-        if (date.getTime() - lastLogin < 43200000) {refreshAvailability();}
-        else {lastLogin = null}
-        i2 = setInterval(() => {
-            let date = new Date();
-            if (date.getHours() < 12) {date.setHours(0, 0, 0, 0)}
-            else {date.setHours(12, 0, 0, 0)}
-            date = date.getTime()
-            if (date - lastLogin >= 43200000) {
-                db.ref().update({
-                    '/firstPeriod': 15,
-                    '/secondPeriod': 15,
-                    '/lastLogin': date
-                });
-            }
-        }, lastLogin === null ? 10 : 60000);
-        if (i3 === null) {
-            i3 = setInterval(() => {
-                if (audio.paused && alarmEl.style.display !== 'flex' && releaseEnd > 0 && releaseEnd < Date.now()) {
-                    showAlertNotification();
+        let date0 = getLoginDate()
+        if (date0 - lastLogin >= 43200000) {
+            console.log('l0')
+            db.ref().update({
+                '/firstPeriod': 15,
+                '/secondPeriod': 15,
+                '/lastLogin': date0
+            });
+            return;
+        }
+        firstPeriod = s.child('firstPeriod').val(); secondPeriod = s.child('secondPeriod').val(); releaseEnd = s.child('releaseEnd').val();
+        if (dailyRefreshTimer === null) {
+            dailyRefreshTimer = setInterval(() => {
+                let date1 = getLoginDate()
+                if (date1 - lastLogin >= 43200000) {
+                    console.log('l1')
+                    db.ref().update({
+                        '/firstPeriod': 15,
+                        '/secondPeriod': 15,
+                        '/lastLogin': date1
+                    });
+                }
+            }, 60000);
+        }
+        if (alarmTimer === null) {
+            alarmTimer = setInterval(async () => {
+                if (alarmEl.style.display !== 'flex' && releaseEnd > 0 && releaseEnd < Date.now()) {
+                    const registration = await navigator.serviceWorker.ready;
+                    await registration.showNotification("Alert!", {
+                        body: "The Release Period is Over!",
+                        icon: "Favicon.png",
+                    });
                     alarmEl.style.display = 'flex';
-                    // audio.play();
                 }
             }, 1000);
         }
+        refreshAvailability();
     };
-    db.ref('/').on('value', i1)
-} else {
-    appEl.style.display = 'none';
-    loginEl.style.display = 'block';
-    email.focus();
-}
+    db.ref('/').on('value', setPage)
+}})
 
-loginEl.querySelector('form').addEventListener('submit', function(e) {
+loginEl.querySelector('form').addEventListener('submit', async function(e) {
     e.preventDefault()
     const password = document.getElementById('password');
     let m = email.value; let p = password.value
     if (m && p) {
+        loadingScr()
         if (Notification.permission === "default") {
-            Notification.requestPermission();
+            await Notification.requestPermission();
         }
-        setCookie('loggedin', 'True');
         auth.signInWithEmailAndPassword(m, p)
-        .then(() => {location.reload()})
-        .catch(err => {alert(err.message)});
+        .catch(err => {
+            clearInterval(loadingTimer); loadingTimer = null
+            if (err.message === 'Firebase: Error (auth/invalid-login-credentials).') {
+                alert("Invalid Credentials!")
+            } else {
+                alert(err.message)
+            }
+            appEl.style.display = 'none'; loginEl.style.display = 'block';
+        });
     } else {
         if (m) {
             alert('You have to fill the passowrd field!')
@@ -135,12 +151,9 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 });
 
 document.getElementById('refreshBtn').addEventListener('click', () => {location.reload()});
-const releaseBtnEl = document.getElementById('releaseBtn');
-const punishBtnEl = document.getElementById('punishBtn');
-const punishEl = document.getElementById('punish');
-const timeEl = document.getElementById('time');
 
 releaseBtnEl.addEventListener('click', () => {
+    availabilityEl.style.display = 'none';
     let d = null
     if (firstPeriod > 0) {
         d = {
@@ -167,6 +180,7 @@ punishEl.querySelector('form').addEventListener('submit', function(e) {
         if (punishmentTime = parseInt(punishmentTime, 10)) {
             timeEl.value = '';
             if (firstPeriod + secondPeriod - punishmentTime >= 0) {
+                punishEl.style.display = 'none';
                 let d;
                 if (punishmentTime === firstPeriod + secondPeriod) {
                     d = {
@@ -191,18 +205,15 @@ punishEl.querySelector('form').addEventListener('submit', function(e) {
     }
 })
 
-document.getElementById('cancelBtn').addEventListener('click', () => {
+document.getElementById('cancelBtn').addEventListener('click', function(e) {
+    e.preventDefault()
     timeEl.value = ''
     punishEl.style.display = 'none';
     availabilityEl.style.display = 'block';
 });
 
 function refreshAvailability() {
-    console.log('aaa')
-    punishEl.style.display = 'none';
-    releaseBtnEl.style.display = 'none';
-    punishBtnEl.style.display = 'none';
-    availabilityEl.style.display = 'block';
+    console.log('Refreshed')
     const dayName = new Date(lastLogin).toLocaleDateString('en-US', {weekday: 'long'});
     const daydate = new Date(lastLogin).toLocaleDateString('en-CA');
     let title = `<span class='centered1'>As of <b>${dayName}, ${daydate}</b>:</span><br>`
@@ -224,20 +235,22 @@ That period is <b>${secondPeriod}</b> ${secondPeriod > 1 ? 'minutes' : 'minute'}
         text = `The Device is currently released.<br>
 It must me taken at <b>${new Date(releaseEnd).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}</b>.<br>` + text;
     }
-    clearInterval(i0)
-    i0 = null
-    availabilityPEl.innerHTML = title + text
     if (!(firstPeriod === 0 && secondPeriod === 0)) {
         punishBtnEl.style.display = 'inline-block';
         if (releaseEnd === 0) {
             releaseBtnEl.style.display = 'inline-block';
+        } else {
+            releaseBtnEl.style.display = 'none';
         }
+    } else {
+        punishBtnEl.style.display = 'none'; releaseBtnEl.style.display = 'none';
     }
+    clearInterval(loadingTimer); loadingTimer = null
+    availabilityPEl.innerHTML = title + text
+    availabilityEl.style.display = 'block';
 }
 
-document.getElementById('pauseAudioBtn').addEventListener('click', () => {
+document.getElementById('pauseAlarmBtn').addEventListener('click', () => {
     alarmEl.style.display = 'none';
-    // audio.pause();
-    // audio.currentTime = 0;
     db.ref('/releaseEnd').set(0);
 });
